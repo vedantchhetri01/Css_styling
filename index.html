@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Do You Like Me?</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            text-align: center;
+            background: linear-gradient(45deg, #f8d7e0, #ffb3c6, #ff69b4); /* Initial gradient */
+            background-size: 400% 400%; /* Allow the gradient to move */
+            animation: gradientAnimation 10s ease infinite; /* Animate the gradient */
+            transition: background-color 0.3s ease;
+            overflow: hidden;
+        }
+
+        @keyframes gradientAnimation {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        h2 {
+            font-size: 32px;
+            color: #b62e72; /* Romantic pink color */
+            margin-bottom: 20px;
+            cursor: pointer; /* Default pointer cursor on hover */
+            transition: transform 0.3s ease, color 0.3s ease, text-shadow 0.3s ease;
+        }
+
+        h2:hover {
+            transform: scale(1.1); /* Slightly enlarge text on hover */
+            color: #ff69b4; /* Lighter pink color */
+            text-shadow: 0px 0px 15px rgba(255, 105, 180, 0.7); /* Glow effect */
+            animation: bounce 0.5s infinite; /* Add a bouncing effect */
+        }
+
+        @keyframes bounce {
+            0% {
+                transform: translateY(0);
+            }
+            25% {
+                transform: translateY(-10px);
+            }
+            50% {
+                transform: translateY(0);
+            }
+            75% {
+                transform: translateY(-5px);
+            }
+            100% {
+                transform: translateY(0);
+            }
+        }
+
+        .button-box {
+            display: inline-block;
+            padding: 15px 30px;
+            margin: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer; /* Default pointer cursor */
+            border: 2px solid #b62e72;
+            border-radius: 25px;
+            background-color: #fff;
+            color: #b62e72;
+            transition: background-color 0.3s, color 0.3s, transform 0.3s, box-shadow 0.3s ease;
+        }
+
+        .button-box:hover {
+            background-color: #b62e72;
+            color: white;
+            transform: scale(1.1); /* Slightly enlarge button on hover */
+            box-shadow: 0px 0px 15px rgba(182, 46, 114, 0.7); /* Add shadow for depth */
+        }
+
+        .button-box.clicked {
+            animation: pulse 0.3s ease-out;
+            background-color: #ff69b4; /* Change color briefly when clicked */
+            color: white;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.2);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .emoji {
+            font-size: 24px;
+            margin: 0 10px;
+        }
+
+        /* Styling for the new image */
+        .image-container {
+            margin-top: 30px;
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .waving-boy {
+            width: 200px;
+            height: auto;
+            border-radius: 15px;
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .waving-boy:hover {
+            transform: rotate(15deg) scale(1.1); /* Rotate and scale the image on hover */
+        }
+
+        /* Sound effect */
+        audio {
+            display: none;
+        }
+
+        /* Countdown Timer Styles */
+        .countdown {
+            font-size: 30px;
+            color: #ff69b4;
+            margin-top: 20px;
+        }
+
+        /* Timeout Message */
+        .timeout-message {
+            font-size: 30px;
+            color: red;
+            margin-top: 20px;
+            display: none;
+        }
+
+        /* Surprise Box Style */
+        .surprise-box {
+            display: none;
+            margin-top: 30px;
+            padding: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            background-color: #ff69b4;
+            color: white;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .surprise-box:hover {
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body>
+
+    <div>
+        <h2 onclick="toggleText()">Do you like me? 💖</h2>
+        <div class="button-box" id="yesBox" onclick="toggleAnswer('yes')">Yes 😘</div>
+        <div class="button-box" id="noBox" onclick="toggleAnswer('no')">No 💔</div>
+
+        <!-- Countdown Timer -->
+        <div id="countdown" class="countdown">Time left: 5s</div>
+        <div id="timeoutMessage" class="timeout-message">You took too long!</div>
+
+        <!-- Image of a dog with a loaf of bread -->
+        <div class="image-container">
+            <img src="https://images.pexels.com/photos/920220/pexels-photo-920220.jpeg" alt="Loaf Bread with Dog Face" class="waving-boy">
+            <p> <a href="https://www.pexels.com/photo/slice-of-loaf-bread-with-dog-face-920220/"></a></p>
+        </div>
+
+        <!-- Surprise Box -->
+        <div class="surprise-box" id="surpriseBox" onclick="showPopup()">Surprise! 🎉</div>
+    </div>
+
+    <!-- Sound effect -->
+    <audio id="clickSound" src="https://www.soundjay.com/button/beep-07.wav" preload="auto"></audio>
+
+    <script>
+        let countdownTimer;
+        let timeLeft = 5; // Set countdown timer to 5 seconds
+
+        function startCountdown() {
+            countdownTimer = setInterval(function() {
+                timeLeft--;
+                document.getElementById('countdown').innerText = `Time left: ${timeLeft}s`;
+
+                if (timeLeft <= 0) {
+                    clearInterval(countdownTimer);
+                    document.getElementById('timeoutMessage').style.display = 'block'; // Show timeout message
+                    document.getElementById('yesBox').style.backgroundColor = '#f0f0f0'; // Change button color
+                    document.getElementById('noBox').style.backgroundColor = '#f0f0f0'; // Change button color
+
+                    // Show the surprise box after timeout
+                    document.getElementById('surpriseBox').style.display = 'block';
+                }
+            }, 1000);
+        }
+
+        function toggleAnswer(selected) {
+            const yesBox = document.getElementById('yesBox');
+            const noBox = document.getElementById('noBox');
+            const clickSound = document.getElementById('clickSound');
+
+            // Play the sound when button is clicked
+            clickSound.play();
+
+            // Swap text between the boxes
+            if (selected === 'no') {
+                yesBox.innerText = 'No 💔';
+                noBox.innerText = 'Yes 😘';
+            } else {
+                yesBox.innerText = 'Yes 😘';
+                noBox.innerText = 'No 💔';
+            }
+
+            // Add a 'clicked' effect to the boxes
+            yesBox.classList.remove('clicked');
+            noBox.classList.remove('clicked');
+            
+            if (selected === 'yes') {
+                yesBox.classList.add('clicked');
+            } else {
+                noBox.classList.add('clicked');
+            }
+        }
+
+        function toggleText() {
+            const h2 = document.querySelector('h2');
+            h2.style.color = h2.style.color === 'rgb(255, 105, 180)' ? '#b62e72' : '#ff69b4';
+            h2.style.transform = h2.style.transform === 'scale(1.1)' ? 'scale(1)' : 'scale(1.1)';
+        }
+
+        function showPopup() {
+            alert("Too late now we are Dating! 💑");
+        }
+
+        // Start the countdown timer when the page loads
+        window.onload = startCountdown;
+    </script>
+
+</body>
+</html>
